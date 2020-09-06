@@ -1,6 +1,6 @@
 // G6
 
-// https://github.com/guohuijuan1/g6-demo-js-object
+// https://github.com/lxtiscool/g6-demo-js-object
 
 var objects = [
   "eval",
