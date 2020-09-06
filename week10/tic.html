@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #div{
+      display: flex;
+      height: 300px;
+      width: 300px;
+      border: red 1px solid;
+      flex-wrap: wrap;
+    }
+    span{
+      width: 100px;
+      height: 100px;
+      box-sizing: border-box;
+      border:#fff 1px solid;
+      vertical-align: middle;
+      background-color: seagreen;
+
+
+      color: red;
+      font-size: 60px;
+      font-weight: 900;
+      line-height: 100px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="div"></div>
+</body>
+<script>
+  const data = [
+    [1, 2, 0],
+    [0, 1, 0],
+    [0, 0, 2]
+  ]
+  let step = 0;
+  let color = 1;
+  function show() {
+    const div = document.getElementById('div')
+    div.innerHTML = ''
+    for (let i = 0; i < data.length; i++) {
+      for (let j = 0; j < data[i].length; j ++) {
+        const span = document.createElement('span')
+        let text = '';
+        if (data[i][j] === 1) {
+          text = 'x';
+        } 
+        if (data[i][j] === 2) {
+          text = 'o'
+        }
+        span.addEventListener("click",() => {
+          move(i, j)
+        })
+        span.innerHTML = text
+        div.appendChild(span)
+      }
+    }
+  }
+  function move(x, y) {
+    console.log(x, y)
+    if (data[x][y] === 0) {
+      step ++;
+      data[x][y] = color;
+      show()
+      if ( step > 4) {
+        if (check(data, color)) {
+          alert(`${color === 1 ? 'x' : 'O'} win`)
+        }
+      }
+      color = 3 - color;
+      if ( step > 2 && willWin(data, color)) {
+        console.log(`${color === 1 ? 'x' : 'O'} will win`)
+      }
+    }
+    return;
+  }
+
+  function computerMove() {
+    const {
+      point,
+    } = bestChoice(data, color)
+    if (point) {
+      data[point[0]][point[1]] = color;
+      show();
+      color = 3 - color;
+    }
+  }
+
+  function clone () {
+    return JSON.parse(JSON.stringify(data))
+  }
+
+  // x、y 可选
+  function check (data, color, x, y) {
+    console.log(step)
+    for(let i = 0; i < data.length; i ++) {
+      let win = true;
+      for(let j = 0; j < data[i].length; j ++) {
+        if (color !== data[i][j]) {
+          win = false;
+          break;
+        }
+      }
+      if (win) {
+        return true;
+      }
+    }
+    for(let i = 0; i < data[0].length; i ++) {
+      let win = true;
+      for(let j = 0; j < data.length; j ++) {
+        if (color !== data[j][i]) {
+          win = false;
+          break;
+        }
+      }
+      if (win) {
+        return true;
+      }
+    }
+    {
+      let win = true;
+      for(let i = 0; i < data.length; i ++) {
+        if (color !== data[i][i]) {
+            win = false;
+            break;
+          }
+        }
+      if (win) {
+        return true;
+      }
+    }
+    {
+      let win = true;
+      for(let i = 0; i < data.length; i ++) {
+        if (color !== data[i][2 - i]) {
+            win = false;
+            break;
+          }
+      }
+      if (win) {
+        return true;
+      }
+    }
+    return false
+  }
+  function willWin (data, color) {
+    for(let i = 0; i < data.length; i ++) {
+      for(let j = 0; j < data[i].length; j ++) {
+        if (data[i][j]) {
+          continue;
+        }
+        // 克隆
+        // const temp = clone();
+        // temp[i][j] = color;
+
+        // 回溯
+        data[i][j] = color
+        if (check(data, color)) {
+          data[i][j] = 0
+          return [i, j]
+        }
+        data[i][j] = 0
+      }
+    }
+    return null;
+  }
+
+  function bestChoice(data, color) {
+    let point = willWin(data, color);
+    if (point) {
+      return {
+        point,
+        result: 1,
+      }
+    }
+
+    let result = -1;
+
+    for(let i = 0; i < data.length; i ++) {
+      for(let j = 0; j < data[i].length; j ++) {
+        if (data[i][j]) {
+          continue;
+        }
+        data[i][j] = color
+        let opp = bestChoice(data, 3 - color);
+        if (- opp.result >= result) {
+          point = [i, j]
+          result = - opp.result
+        }
+        data[i][j] = 0
+      }
+    }
+    return {
+      point,
+      result: point ? result : 0,
+    }
+  }
+  show()
+</script>
+</html>
